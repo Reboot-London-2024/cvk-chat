@@ -55,6 +55,9 @@ if __name__ == '__main__':
     gr.ChatInterface(response,
                     title='Trusted Person Setup Chatbot',
                     textbox=gr.Textbox(placeholder="Question"),
-                    retry_btn=None,
-                    server_name="0.0.0.0",
-                    server_port=8080).launch(debug=True)
+                    retry_btn=None
+                    ).launch(
+                        server_name="0.0.0.0",
+                        server_port=8080,
+                        debug=True
+                        )
