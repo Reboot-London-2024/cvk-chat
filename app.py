@@ -41,6 +41,8 @@ def response(chat, message):
 
 @app.route('/')
 def index():
+    global chat_model
+    chat_model = create_session()
     return render_template('index.html')
 
 @app.route('/palm2', methods=['GET', 'POST'])
@@ -50,7 +52,6 @@ def vertex_palm():
         user_input = request.args.get('user_input')
     else:
         user_input = request.form['user_input']
-    chat_model = create_session()
     content = response(chat_model,user_input)
     return jsonify(content=content)
 
