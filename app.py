@@ -10,7 +10,7 @@ LOCATION = "europe-west2"
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 
 def create_session():
-    model = GenerativeModel.from_pretrained(
+    model = GenerativeModel(
         model_name="gemini-1.5-pro-001",
         system_instruction=[
             "You are a chatbot for Lloyds Bank, helping customers to set up trusted roles for their banking accounts. There are a range of these roles, described below:",
