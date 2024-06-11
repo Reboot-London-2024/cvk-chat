@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+import gradio as gr
 import vertexai
 from vertexai.generative_models import GenerativeModel
 import os
+import time
 
-app = Flask(__name__)
+# app = Flask(__name__)
 PROJECT_ID = "lbplc-reboot24lon-974"  
 LOCATION = "europe-west2"  
 
@@ -28,32 +29,32 @@ Limited cash card access: Restricted access to withdraw funds or make purchases 
         )
     return model.start_chat()
 
+chat = create_session()
 
-def response(chat, message):
-    parameters = {
-        "temperature": 0.2,
-    }
-    text_response = []
-    responses = chat.send_message(message, stream=True)
-    for chunk in responses:
-        text_response.append(chunk.text)
-    return "".join(text_response)
+def transform_history(history):
+    new_history = []
+    for chat in history:
+        new_history.append({"parts": [{"text": chat[0]}], "role": "user"})
+        new_history.append({"parts": [{"text": chat[1]}], "role": "model"})
+    return new_history
 
-@app.route('/')
-def index():
-    global chat_model
-    chat_model = create_session()
-    return render_template('index.html')
+def response(message, history):
+    global chat
+    # The history will be the same as in Gradio, the 'Undo' and 'Clear' buttons will work correctly.
+    chat.history = transform_history(history)
+    response = chat.send_message(message)
+    response.resolve()
 
-@app.route('/palm2', methods=['GET', 'POST'])
-def vertex_palm():
-    user_input = ""
-    if request.method == 'GET':
-        user_input = request.args.get('user_input')
-    else:
-        user_input = request.form['user_input']
-    content = response(chat_model,user_input)
-    return jsonify(content=content)
+    # Each character of the answer is displayed
+    for i in range(len(response.text)):
+        time.sleep(0.01)
+        yield response.text[: i+1]
+
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080, host='0.0.0.0')
+    gr.ChatInterface(response,
+                    title='Trusted Person Setup Chatbot',
+                    textbox=gr.Textbox(placeholder="Question"),
+                    retry_btn=None,
+                    server_name="0.0.0.0",
+                    server_port=8080).launch(debug=True)
