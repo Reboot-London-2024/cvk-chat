@@ -42,13 +42,17 @@ def response(message, history):
     global chat
     # The history will be the same as in Gradio, the 'Undo' and 'Clear' buttons will work correctly.
     chat.history = transform_history(history)
-    response = chat.send_message(message)
-    response.resolve()
+    responses = chat.send_message(message)
+    text_response = []
+    for chunk in responses:
+        text_response.append(chunk.text)
+    # response.resolve()
 
     # Each character of the answer is displayed
-    for i in range(len(response.text)):
-        time.sleep(0.01)
-        yield response.text[: i+1]
+    # for i in range(len(response.text)):
+    #     time.sleep(0.01)
+    #     yield response.text[: i+1]
+    return "".join(text_response)
 
 
 if __name__ == '__main__':
